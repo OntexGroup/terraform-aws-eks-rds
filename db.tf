@@ -103,7 +103,7 @@ resource "kubernetes_secret" "db_secret" {
   data = {
     DB_USERNAME = module.db.this_db_instance_username
     DB_NAME     = module.db.this_db_instance_name
-    DB_PASSWORD = var.db_password == "" ? random_string.db_root_password[count.index].result : var.db_password
+    DB_PASSWORD = var.db_password == "" ? random_string.db_root_password[0].result : var.db_password
     DB_ENDPOINT = module.db.this_db_instance_endpoint
     DB_ADDRESS  = module.db.this_db_instance_address
     DB_PORT     = module.db.this_db_instance_port
