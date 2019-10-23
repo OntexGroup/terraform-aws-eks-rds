@@ -23,7 +23,7 @@ variable "db_engine_version" {
 }
 
 variable "db_major_engine_version" {
-  default = "11.2"
+  default = "11.5"
 }
 
 variable "db_instance_class" {
