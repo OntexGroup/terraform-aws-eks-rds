@@ -61,6 +61,7 @@ module "db" {
   engine_version       = var.db_engine_version
   family               = var.db_family
   major_engine_version = var.db_major_engine_version
+  ca_cert_identifier = var.db_ca_cert_identifier
 
   instance_class    = var.db_instance_class
   allocated_storage = var.db_allocated_storage
@@ -75,9 +76,10 @@ module "db" {
   vpc_security_group_ids = [aws_security_group.db.id]
 
   maintenance_window = var.db_maintenance_window
+  apply_immediately = var.db_apply_immediately
+
   backup_window      = var.db_backup_window
 
-  ca_cert_identifier = var.db_ca_cert_identifier
 
   backup_retention_period = var.db_backup_retention_period
 

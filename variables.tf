@@ -87,6 +87,11 @@ variable "db_deletion_protection" {
   default = false
 }
 
+variable "db_apply_immediately" {
+  default = false
+  description = "Specifies whether any database modifications are applied immediately, or during the next maintenance window" 
+}
+
 variable "db_ca_cert_identifier" {
   default = "rds-ca-2019"
   description = "Specifies the identifier of the CA certificate for the DB instance"
