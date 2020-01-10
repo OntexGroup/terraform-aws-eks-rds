@@ -77,6 +77,8 @@ module "db" {
   maintenance_window = var.db_maintenance_window
   backup_window      = var.db_backup_window
 
+  ca_cert_identifier = var.db_ca_cert_identifier
+
   backup_retention_period = var.db_backup_retention_period
 
   tags = var.db_tags
