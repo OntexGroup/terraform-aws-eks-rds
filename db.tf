@@ -14,10 +14,19 @@ resource "aws_security_group" "db" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-    self        = true
   }
 
   tags = var.db_tags
+}
+
+resource "aws_security_group_rule" "db-self" {
+  description       = "Allow db sg to communicate with each other"
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.db.id
+  to_port           = 65535
+  type              = "ingress"
+  self              = true
 }
 
 resource "aws_security_group_rule" "db-eks" {
