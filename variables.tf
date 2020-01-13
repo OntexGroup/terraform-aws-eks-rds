@@ -98,18 +98,8 @@ variable "db_ca_cert_identifier" {
 }
 
 variable "db_parameters" {
-  type = any
-
-  default = [
-    {
-      name  = "character_set_client"
-      value = "utf8"
-    },
-    {
-      name  = "character_set_server"
-      value = "utf8"
-    },
-  ]
+  type    = list
+  default = []
 }
 
 variable "db_multi_az" {
