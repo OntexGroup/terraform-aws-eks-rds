@@ -58,11 +58,12 @@ module "db" {
 
   identifier = "${var.db_identifier}-${var.env}"
 
-  engine               = var.db_engine
-  engine_version       = var.db_engine_version
-  family               = var.db_family
-  major_engine_version = var.db_major_engine_version
-  ca_cert_identifier = var.db_ca_cert_identifier
+  engine                 = var.db_engine
+  engine_version         = var.db_engine_version
+  family                 = var.db_family
+  major_engine_version   = var.db_major_engine_version
+  ca_cert_identifier     = var.db_ca_cert_identifier
+  create_db_option_group = var.db_create_db_option_group
 
   instance_class    = var.db_instance_class
   allocated_storage = var.db_allocated_storage

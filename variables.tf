@@ -19,7 +19,7 @@ variable "db_engine" {
 }
 
 variable "db_engine_version" {
-  default = "11.5"
+  default = "11.2"
 }
 
 variable "db_major_engine_version" {
@@ -123,4 +123,8 @@ variable "inject_secret_into_ns" {
 
 variable "db_remote_security_group_id" {
   default = ""
+}
+
+variable "db_create_db_option_group" {
+  default = true
 }
