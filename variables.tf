@@ -128,8 +128,3 @@ variable "db_remote_security_group_id" {
 variable "db_create_db_option_group" {
   default = true
 }
-
-variable "db_parameters" {
-  type    = list
-  default = []
-}
