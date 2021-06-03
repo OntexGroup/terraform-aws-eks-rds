@@ -3,9 +3,8 @@ variable "aws" {
   default = {}
 }
 
-variable "eks" {
-  type    = map(string)
-  default = {}
+variable eks {
+  type    = any
 }
 
 variable "env" {
@@ -19,7 +18,7 @@ variable "db_engine" {
 }
 
 variable "db_engine_version" {
-  default = "11.2"
+  default = "11.5"
 }
 
 variable "db_major_engine_version" {
@@ -42,12 +41,16 @@ variable "db_storage_type" {
   default = "gp2"
 }
 
+variable "db_max_allocated_storage" {
+  default = "0"
+}
+
 variable "db_name" {
   default = ""
 }
 
 variable "db_username" {
-  default = "ontex"
+  default = "user"
 }
 
 variable "db_password" {

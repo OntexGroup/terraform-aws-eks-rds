@@ -1,35 +1,34 @@
+
+data aws_eks_cluster this {
+  name = var.eks.cluster_name
+}
+
+data aws_eks_cluster_auth this {
+  name = var.eks.cluster_name
+}
+
+#---
+
+provider kubernetes {
+  host                   = data.aws_eks_cluster.this.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.this.token
+}
+
+#---
+
 terraform {
-  backend "s3" {
+  required_version = ">= 0.15.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.0.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.1.0"
+    }
   }
 }
 
-provider "kubernetes" {
-  config_path = var.eks["kubeconfig_path"]
-}
-
-provider "aws" {
-  region = var.aws["region"]
-}
-
-data "terraform_remote_state" "eks" {
-  backend = "s3"
-
-  config = {
-    bucket = var.eks["remote_state_bucket"]
-    key    = var.eks["remote_state_key"]
-    region = var.eks["remote_state_bucket_region"]
-  }
-}
-
-data "aws_vpc" "vpc" {
-  id = var.aws["vpc_id"]
-}
-
-data "aws_subnet_ids" "private" {
-  vpc_id = data.aws_vpc.vpc.id
-
-  tags = {
-    Public = "no"
-    Env    = var.env
-  }
-}
