@@ -87,7 +87,7 @@ variable "db_family" {
 }
 
 variable "db_deletion_protection" {
-  default = false
+  default = true
 }
 
 variable "db_apply_immediately" {
@@ -121,3 +121,9 @@ variable "db_remote_security_group_id" {
 variable "db_create_db_option_group" {
   default = true
 }
+
+variable "skip_final_snapshot" {
+  type        = bool
+  default     = false
+}
+

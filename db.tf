@@ -101,6 +101,7 @@ module "db" {
 
   subnet_ids = var.eks["vpc-private-subnets"]
 
+  skip_final_snapshot = var.skip_final_snapshot
   final_snapshot_identifier = "${var.db_identifier}-${var.env}-final-snapshot"
 
   deletion_protection = var.db_deletion_protection
@@ -109,11 +110,11 @@ module "db" {
 }
 
 resource "kubernetes_secret" "db_secret" {
-  count = length(var.inject_secret_into_ns)
+  for_each = { for i,v in var.inject_secret_into_ns: v => v }
 
   metadata {
     name      = "db-${var.db_identifier}-${var.env}"
-    namespace = var.inject_secret_into_ns[count.index]
+    namespace = each.value
   }
 
   data = {
