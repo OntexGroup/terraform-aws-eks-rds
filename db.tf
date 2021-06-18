@@ -107,6 +107,7 @@ module "db" {
   deletion_protection = var.db_deletion_protection
 
   multi_az = var.db_multi_az
+  performance_insights_enabled = var.performance_insights_enabled
 }
 
 resource "kubernetes_secret" "db_secret" {

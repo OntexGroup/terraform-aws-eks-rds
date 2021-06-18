@@ -127,3 +127,8 @@ variable "skip_final_snapshot" {
   default     = false
 }
 
+variable "performance_insights_enabled" {
+  type        = bool
+  default     = false
+}
+
