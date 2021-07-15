@@ -109,11 +109,6 @@ variable "db_multi_az" {
   default = false
 }
 
-variable "inject_secret_into_ns" {
-  type    = list
-  default = []
-}
-
 variable "db_remote_security_group_id" {
   default = ""
 }

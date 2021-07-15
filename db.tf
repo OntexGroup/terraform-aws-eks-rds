@@ -1,3 +1,8 @@
+
+locals {
+db_password = (var.db_password == "") ? join(",", random_string.db_root_password.*.result) : var.db_password
+}
+
 resource "random_string" "db_root_password" {
   count   = var.db_password == "" ? 1 : 0
   length  = 16
@@ -84,7 +89,7 @@ module "db" {
   max_allocated_storage = var.db_max_allocated_storage
   name     = var.db_name
   username = var.db_username
-  password = var.db_password == "" ? join(",", random_string.db_root_password.*.result) : var.db_password
+  password = local.db_password
   port     = var.db_port
 
   vpc_security_group_ids = [aws_security_group.db.id]
@@ -110,23 +115,23 @@ module "db" {
   performance_insights_enabled = var.performance_insights_enabled
 }
 
-resource "kubernetes_secret" "db_secret" {
-  for_each = { for i,v in var.inject_secret_into_ns: v => v }
-
-  metadata {
-    name      = "db-${var.db_identifier}-${var.env}"
-    namespace = each.value
-  }
-
-  data = {
-    DB_USERNAME = module.db.db_instance_username
-    DB_NAME     = module.db.db_instance_name
-    DB_PASSWORD = var.db_password == "" ? random_string.db_root_password[0].result : var.db_password
-    DB_ENDPOINT = module.db.db_instance_endpoint
-    DB_ADDRESS  = module.db.db_instance_address
-    DB_PORT     = module.db.db_instance_port
-  }
-}
+#resource "kubernetes_secret" "db_secret" {
+#  for_each = { for i,v in var.inject_secret_into_ns: v => v }
+#
+#  metadata {
+#    name      = "db-${var.db_identifier}-${var.env}"
+#    namespace = each.value
+#  }
+#
+#  data = {
+#    DB_USERNAME = module.db.db_instance_username
+#    DB_NAME     = module.db.db_instance_name
+#    DB_PASSWORD = var.db_password == "" ? random_string.db_root_password[0].result : var.db_password
+#    DB_ENDPOINT = module.db.db_instance_endpoint
+#    DB_ADDRESS  = module.db.db_instance_address
+#    DB_PORT     = module.db.db_instance_port
+#  }
+#}
 
 output "db_instance_address" {
   value = module.db.db_instance_address
