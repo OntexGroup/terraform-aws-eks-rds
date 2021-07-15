@@ -56,9 +56,9 @@ resource "aws_cloudwatch_metric_alarm" "readlatency" {
     }
   }
   metric_query {
-    expression  = "ANOMALY_DETECTION_BAND(m1, 1000000)"
+    expression  = "ANOMALY_DETECTION_BAND(m1)"
     id          = "ad1"
-    label       = "WriteLatency (expected)"
+    label       = "ReadLatency (expected)"
     return_data = true
   }
 
@@ -87,7 +87,7 @@ resource "aws_cloudwatch_metric_alarm" "writelatency" {
     }
   }
   metric_query {
-    expression  = "ANOMALY_DETECTION_BAND(m1, 1000000)"
+    expression  = "ANOMALY_DETECTION_BAND(m1)"
     id          = "ad1"
     label       = "WriteLatency (expected)"
     return_data = true
