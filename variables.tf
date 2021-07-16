@@ -127,3 +127,8 @@ variable "performance_insights_enabled" {
   default     = false
 }
 
+variable raw_identifier {
+  type        = bool
+  default     = false
+}
+

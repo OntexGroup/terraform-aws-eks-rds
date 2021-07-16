@@ -1,7 +1,11 @@
 
 locals {
 db_password = (var.db_password == "") ? join(",", random_string.db_root_password.*.result) : var.db_password
+
+id = (var.raw_identifier ? var.db_identifier : "${var.db_identifier}-${var.env}")
 }
+
+#----
 
 resource "random_string" "db_root_password" {
   count   = var.db_password == "" ? 1 : 0
@@ -10,8 +14,8 @@ resource "random_string" "db_root_password" {
 }
 
 resource "aws_security_group" "db" {
-  name        = "db-${var.db_identifier}-${var.env}"
-  description = "Security group for db ${var.db_identifier}-${var.env}"
+  name        = "db-${local.id}"
+  description = "Security group for db ${local.id}"
   vpc_id      = var.eks.vpc_id
 
   egress {
@@ -36,34 +40,34 @@ resource "aws_security_group_rule" "db-self" {
 }
 
 resource "aws_security_group_rule" "db-eks" {
-  description              = "Allow worker Kubelets and pods to communicate with ${var.db_identifier}-${var.env} DB"
-  from_port                = var.db_port
+  description              = "Allow worker Kubelets and pods to communicate with ${local.id} DB"
   protocol                 = "tcp"
+  from_port                = var.db_port
+  to_port                  = var.db_port
   security_group_id        = aws_security_group.db.id
   source_security_group_id = var.eks.eks-node-sg
-  to_port                  = var.db_port
   type                     = "ingress"
 }
 
 resource "aws_security_group_rule" "db-bastion-eks" {
   count                    = var.eks.bastion-sg == "" ? 0 : 1
-  description              = "Allow worker Kubelets and pods to communicate with ${var.db_identifier}-${var.env} DB"
-  from_port                = var.db_port
+  description              = "Allow worker Kubelets and pods to communicate with ${local.id} DB"
   protocol                 = "tcp"
+  from_port                = var.db_port
+  to_port                  = var.db_port
   security_group_id        = aws_security_group.db.id
   source_security_group_id = var.eks.bastion-sg
-  to_port                  = var.db_port
   type                     = "ingress"
 }
 
 resource "aws_security_group_rule" "db-bastion" {
   count                    = var.db_remote_security_group_id == "" ? 0 : 1
-  description              = "Allow worker Kubelets and pods to communicate with ${var.db_identifier}-${var.env} DB"
-  from_port                = var.db_port
+  description              = "Allow worker Kubelets and pods to communicate with ${local.id} DB"
   protocol                 = "tcp"
+  from_port                = var.db_port
+  to_port                  = var.db_port
   security_group_id        = aws_security_group.db.id
   source_security_group_id = var.db_remote_security_group_id
-  to_port                  = var.db_port
   type                     = "ingress"
 }
 
@@ -71,7 +75,7 @@ module "db" {
   source  = "terraform-aws-modules/rds/aws"
   version = "> v2.0"
 
-  identifier = "${var.db_identifier}-${var.env}"
+  identifier = "${local.id}"
 
   engine                 = var.db_engine
   engine_version         = var.db_engine_version
@@ -87,7 +91,7 @@ module "db" {
   storage_encrypted     = var.db_storage_encrypted
   storage_type          = var.db_storage_type
   max_allocated_storage = var.db_max_allocated_storage
-  name     = var.db_name
+
   username = var.db_username
   password = local.db_password
   port     = var.db_port
@@ -107,7 +111,7 @@ module "db" {
   subnet_ids = var.eks["vpc-private-subnets"]
 
   skip_final_snapshot = var.skip_final_snapshot
-  final_snapshot_identifier = "${var.db_identifier}-${var.env}-final-snapshot"
+  final_snapshot_identifier = "${local.id}-final-snapshot"
 
   deletion_protection = var.db_deletion_protection
 
@@ -119,7 +123,7 @@ module "db" {
 #  for_each = { for i,v in var.inject_secret_into_ns: v => v }
 #
 #  metadata {
-#    name      = "db-${var.db_identifier}-${var.env}"
+#    name      = "db-${local.id}"
 #    namespace = each.value
 #  }
 #
@@ -163,3 +167,6 @@ output "db_instance_name" {
   value = module.db.db_instance_name
 }
 
+output id {
+  value = local.id
+}
