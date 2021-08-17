@@ -1,16 +1,8 @@
-variable "aws" {
-  type    = map(string)
-  default = {}
-}
-
-variable eks {
-  type    = any
-}
-
 variable "env" {
 }
 
 variable "db_identifier" {
+  type = string
 }
 
 variable "db_engine" {
@@ -130,5 +122,21 @@ variable "performance_insights_enabled" {
 variable raw_identifier {
   type        = bool
   default     = false
+}
+
+variable name {
+  type = string
+}
+
+variable vpc_id {
+  type = string
+}
+
+variable subnet_ids {
+  type = list(string)
+}
+
+variable allowed_security_groups {
+  type = any
 }
 

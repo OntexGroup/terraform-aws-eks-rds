@@ -1,22 +1,17 @@
-
-locals {
-db_password = (var.db_password == "") ? join(",", random_string.db_root_password.*.result) : var.db_password
-
-id = (var.raw_identifier ? var.db_identifier : "${var.db_identifier}-${var.env}")
-}
-
 #----
 
-resource "random_string" "db_root_password" {
+resource random_string db_root_password {
   count   = var.db_password == "" ? 1 : 0
   length  = 16
   special = false
 }
 
-resource "aws_security_group" "db" {
-  name        = "db-${local.id}"
-  description = "Security group for db ${local.id}"
-  vpc_id      = var.eks.vpc_id
+#----
+
+resource aws_security_group db {
+  name        = "rds-${var.name}"
+  description = "Security group for ${var.name} DB instance"
+  vpc_id      = var.vpc_id
 
   egress {
     from_port   = 0
@@ -29,53 +24,38 @@ resource "aws_security_group" "db" {
   tags = var.db_tags
 }
 
-resource "aws_security_group_rule" "db-self" {
-  description       = "Allow db sg to communicate with each other"
+#----
+
+resource aws_security_group_rule db-self {
+  description       = "Allow DB to communicate with itself"
   from_port         = 0
+  to_port           = 65535
   protocol          = "-1"
   security_group_id = aws_security_group.db.id
-  to_port           = 65535
   type              = "ingress"
   self              = true
 }
 
-resource "aws_security_group_rule" "db-eks" {
-  description              = "Allow worker Kubelets and pods to communicate with ${local.id} DB"
+#----
+
+resource aws_security_group_rule allowed_sg {
+  for_each                  = var.allowed_security_groups
+  description              = "Allow access from ${each.key} to ${var.name} DB"
   protocol                 = "tcp"
   from_port                = var.db_port
   to_port                  = var.db_port
   security_group_id        = aws_security_group.db.id
-  source_security_group_id = var.eks.eks-node-sg
+  source_security_group_id = each.value
   type                     = "ingress"
 }
 
-resource "aws_security_group_rule" "db-bastion-eks" {
-  count                    = var.eks.bastion-sg == "" ? 0 : 1
-  description              = "Allow worker Kubelets and pods to communicate with ${local.id} DB"
-  protocol                 = "tcp"
-  from_port                = var.db_port
-  to_port                  = var.db_port
-  security_group_id        = aws_security_group.db.id
-  source_security_group_id = var.eks.bastion-sg
-  type                     = "ingress"
-}
-
-resource "aws_security_group_rule" "db-bastion" {
-  count                    = var.db_remote_security_group_id == "" ? 0 : 1
-  description              = "Allow worker Kubelets and pods to communicate with ${local.id} DB"
-  protocol                 = "tcp"
-  from_port                = var.db_port
-  to_port                  = var.db_port
-  security_group_id        = aws_security_group.db.id
-  source_security_group_id = var.db_remote_security_group_id
-  type                     = "ingress"
-}
+#----
 
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "> v2.0"
+  version = "3.3.0"
 
-  identifier = "${local.id}"
+  identifier = "${var.name}"
 
   engine                 = var.db_engine
   engine_version         = var.db_engine_version
@@ -108,65 +88,13 @@ module "db" {
 
   enabled_cloudwatch_logs_exports = var.db_enable_cloudwatch_logs_exports
 
-  subnet_ids = var.eks["vpc-private-subnets"]
+  subnet_ids = var.subnet_ids
 
   skip_final_snapshot = var.skip_final_snapshot
-  final_snapshot_identifier = "${local.id}-final-snapshot"
+  final_snapshot_identifier = "${var.name}-final-snapshot"
 
   deletion_protection = var.db_deletion_protection
 
   multi_az = var.db_multi_az
   performance_insights_enabled = var.performance_insights_enabled
-}
-
-#resource "kubernetes_secret" "db_secret" {
-#  for_each = { for i,v in var.inject_secret_into_ns: v => v }
-#
-#  metadata {
-#    name      = "db-${local.id}"
-#    namespace = each.value
-#  }
-#
-#  data = {
-#    DB_USERNAME = module.db.db_instance_username
-#    DB_NAME     = module.db.db_instance_name
-#    DB_PASSWORD = var.db_password == "" ? random_string.db_root_password[0].result : var.db_password
-#    DB_ENDPOINT = module.db.db_instance_endpoint
-#    DB_ADDRESS  = module.db.db_instance_address
-#    DB_PORT     = module.db.db_instance_port
-#  }
-#}
-
-output "db_instance_address" {
-  value = module.db.db_instance_address
-}
-
-output "db_instance_port" {
-  value = module.db.db_instance_port
-}
-
-output "db_instance_endpoint" {
-  value = module.db.db_instance_endpoint
-}
-
-output "db_instance_username" {
-  value = module.db.db_instance_username
-  sensitive = true
-}
-
-output "db_instance_password" {
-  value     = module.db.db_instance_password
-  sensitive = true
-}
-
-output "db_security_group_id" {
-  value = aws_security_group.db.id
-}
-
-output "db_instance_name" {
-  value = module.db.db_instance_name
-}
-
-output id {
-  value = local.id
 }

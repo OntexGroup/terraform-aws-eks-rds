@@ -1,7 +1,7 @@
 variable "cloudwatch_sns_topic_arn" {}
 
 resource "aws_cloudwatch_metric_alarm" "storage" {
-  alarm_name          = "db-${local.id}-freestoragespace"
+  alarm_name          = "db-${var.name}-freestoragespace"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
   metric_name         = "FreeStorageSpace"
@@ -11,14 +11,14 @@ resource "aws_cloudwatch_metric_alarm" "storage" {
   threshold           = "10000000000"
 
   dimensions = {
-    DBInstanceIdentifier = "${local.id}"
+    DBInstanceIdentifier = "${var.name}"
   }
 
   alarm_actions     = [var.cloudwatch_sns_topic_arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu" {
-  alarm_name          = "db-${local.id}-cpuutilization"
+  alarm_name          = "db-${var.name}-cpuutilization"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "10"
   metric_name         = "CPUUtilization"
@@ -28,14 +28,14 @@ resource "aws_cloudwatch_metric_alarm" "cpu" {
   threshold           = "90"
 
   dimensions = {
-    DBInstanceIdentifier = "${local.id}"
+    DBInstanceIdentifier = "${var.name}"
   }
 
   alarm_actions     = [var.cloudwatch_sns_topic_arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "readlatency" {
-  alarm_name          = "db-${local.id}-readlatency"
+  alarm_name          = "db-${var.name}-readlatency"
   comparison_operator = "GreaterThanUpperThreshold"
   evaluation_periods  = "2"
   threshold_metric_id = "ad1"
@@ -47,7 +47,7 @@ resource "aws_cloudwatch_metric_alarm" "readlatency" {
 
     metric {
         dimensions  = {
-            "DBInstanceIdentifier" = "${local.id}"
+            "DBInstanceIdentifier" = "${var.name}"
         }
         metric_name = "ReadLatency"
         namespace   = "AWS/RDS"
@@ -66,7 +66,7 @@ resource "aws_cloudwatch_metric_alarm" "readlatency" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "writelatency" {
-  alarm_name          = "db-${local.id}-writelatency"
+  alarm_name          = "db-${var.name}-writelatency"
   comparison_operator = "GreaterThanUpperThreshold"
   evaluation_periods  = "2"
   threshold_metric_id = "ad1"
@@ -78,7 +78,7 @@ resource "aws_cloudwatch_metric_alarm" "writelatency" {
 
     metric {
         dimensions  = {
-            "DBInstanceIdentifier" = "${local.id}"
+            "DBInstanceIdentifier" = "${var.name}"
         }
         metric_name = "WriteLatency"
         namespace   = "AWS/RDS"
@@ -97,7 +97,7 @@ resource "aws_cloudwatch_metric_alarm" "writelatency" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "transactionlogsdiskusage" {
-  alarm_name          = "db-${local.id}-transactionlogsdiskusage"
+  alarm_name          = "db-${var.name}-transactionlogsdiskusage"
   comparison_operator = "GreaterThanUpperThreshold"
   evaluation_periods  = "2"
   threshold_metric_id = "ad1"
@@ -109,7 +109,7 @@ resource "aws_cloudwatch_metric_alarm" "transactionlogsdiskusage" {
 
     metric {
         dimensions  = {
-            "DBInstanceIdentifier" = "${local.id}"
+            "DBInstanceIdentifier" = "${var.name}"
         }
         metric_name = "TransactionLogsDiskUsage"
         namespace   = "AWS/RDS"
@@ -128,7 +128,7 @@ resource "aws_cloudwatch_metric_alarm" "transactionlogsdiskusage" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "transactionlogsgeneration" {
-  alarm_name          = "db-${local.id}-transactionlogsgeneration"
+  alarm_name          = "db-${var.name}-transactionlogsgeneration"
   comparison_operator = "GreaterThanUpperThreshold"
   evaluation_periods  = "2"
   threshold_metric_id = "ad1"
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_metric_alarm" "transactionlogsgeneration" {
 
     metric {
         dimensions  = {
-            "DBInstanceIdentifier" = "${local.id}"
+            "DBInstanceIdentifier" = "${var.name}"
         }
         metric_name = "TransactionLogsGeneration"
         namespace   = "AWS/RDS"
