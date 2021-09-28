@@ -22,6 +22,10 @@ resource aws_security_group db {
   }
 
   tags = var.db_tags
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 #----
