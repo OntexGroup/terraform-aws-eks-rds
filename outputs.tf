@@ -28,6 +28,10 @@ output "db_instance_name" {
   value = module.db.db_instance_name
 }
 
+output "db_instance_arn" {
+  value = module.db.db_instance_arn
+}
+
 output id {
   value = var.name
 }
